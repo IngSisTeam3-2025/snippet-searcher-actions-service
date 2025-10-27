@@ -1,0 +1,15 @@
+name: Build and Push Docker Image
+description: Reusable action to build and push Docker image to GHCR
+inputs:
+  username:
+    required: true
+  token:
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - run: echo "${{ inputs.token }}" | docker login ghcr.io -u "${{ inputs.username }}" --password-stdin
+    - run: |
+        IMAGE=ghcr.io/${{ inputs.username }}/${{ github.repository##*/ }}:latest
+        docker build -t $IMAGE .
+        docker push $IMAGE
