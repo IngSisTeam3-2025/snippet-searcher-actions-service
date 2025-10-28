@@ -1,15 +1,23 @@
 name: Build and Push Docker Image
 description: Reusable action to build and push Docker image to GHCR
+
 inputs:
   username:
     required: true
   token:
     required: true
+
 runs:
   using: "composite"
   steps:
-    - run: echo "${{ inputs.token }}" | docker login ghcr.io -u "${{ inputs.username }}" --password-stdin
-    - run: |
-        IMAGE=ghcr.io/${{ inputs.username }}/${{ github.repository##*/ }}:latest
-        docker build -t $IMAGE .
-        docker push $IMAGE
+    - name: Log in to GitHub Container Registry
+      shell: bash
+      run: echo "${{ inputs.token }}" | docker login ghcr.io -u "${{ inputs.username }}" --password-stdin
+
+    - name: Build and Push Image
+      shell: bash
+      run: |
+        REPO_NAME=$(basename "${GITHUB_REPOSITORY}")
+        IMAGE="ghcr.io/${{ inputs.username }}/${REPO_NAME}:latest"
+        docker build -t "$IMAGE" .
+        docker push "$IMAGE"
