@@ -18,10 +18,15 @@ runs:
   steps:
     - name: Log in to GitHub Container Registry
       shell: bash
-      run: echo "${{ inputs.token }}" | docker login ghcr.io -u "${{ inputs.username }}" --password-stdin
+      run: |
+        echo "${{ inputs.token }}" | docker login ghcr.io -u "${{ inputs.username }}" --password-stdin
 
     - name: Build and Push Image
       shell: bash
       run: |
-        docker build -t "${{ inputs.image }}" .
+        docker build \
+          --build-arg GITHUB_USER="${{ inputs.gpr_user }}" \
+          --build-arg GITHUB_TOKEN="${{ inputs.gpr_key }}" \
+          -t "${{ inputs.image }}" .
+
         docker push "${{ inputs.image }}"
