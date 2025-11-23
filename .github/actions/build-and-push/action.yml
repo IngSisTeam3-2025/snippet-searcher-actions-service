@@ -24,9 +24,5 @@ runs:
     - name: Build and Push Image
       shell: bash
       run: |
-        docker build \
-          --build-arg GITHUB_USER="${{ inputs.gpr_user }}" \
-          --build-arg GITHUB_TOKEN="${{ inputs.gpr_key }}" \
-          -t "${{ inputs.image }}" .
-
+        docker build --build-arg GITHUB_USER="${{ inputs.gpr_user }}" --build-arg GITHUB_TOKEN="${{ inputs.gpr_key }}" -t "${{ inputs.image }}" .
         docker push "${{ inputs.image }}"
