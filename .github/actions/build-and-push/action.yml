@@ -8,6 +8,10 @@ inputs:
     required: true
   image:
     required: true
+  gpr_user:
+    required: false
+  gpr_key:
+    required: false
 
 runs:
   using: "composite"
