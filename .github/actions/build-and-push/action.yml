@@ -24,5 +24,13 @@ runs:
     - name: Build and Push Image
       shell: bash
       run: |
-        docker build --build-arg GITHUB_USER="${{ inputs.gpr_user }}" --build-arg GITHUB_TOKEN="${{ inputs.gpr_key }}" -t "${{ inputs.image }}" .
+        if [ -n "${{ inputs.gpr_user }}" ] && [ -n "${{ inputs.gpr_key }}" ]; then
+          docker build \
+            --build-arg GPR_USER="${{ inputs.gpr_user }}" \
+            --build-arg GPR_KEY="${{ inputs.gpr_key }}" \
+            -t "${{ inputs.image }}" .
+        else
+          docker build -t "${{ inputs.image }}" .
+        fi
+
         docker push "${{ inputs.image }}"
