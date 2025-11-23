@@ -1,0 +1,36 @@
+name: Build and Push Docker Image
+description: Reusable action to build and push Docker image to GHCR
+
+inputs:
+  username:
+    required: true
+  token:
+    required: true
+  image:
+    required: true
+  gpr_user:
+    required: false
+  gpr_key:
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Log in to GitHub Container Registry
+      shell: bash
+      run: |
+        echo "${{ inputs.token }}" | docker login ghcr.io -u "${{ inputs.username }}" --password-stdin
+
+    - name: Build and Push Image
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.gpr_user }}" ] && [ -n "${{ inputs.gpr_key }}" ]; then
+          docker build \
+            --build-arg GPR_USER="${{ inputs.gpr_user }}" \
+            --build-arg GPR_KEY="${{ inputs.gpr_key }}" \
+            -t "${{ inputs.image }}" .
+        else
+          docker build -t "${{ inputs.image }}" .
+        fi
+
+        docker push "${{ inputs.image }}"
