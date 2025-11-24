@@ -30,7 +30,7 @@ runs:
             --build-arg GPR_KEY="${{ inputs.gpr_key }}" \
             -t "${{ inputs.image }}" .
         else
-          docker build -t "${{ inputs.image }}" .
+          docker build -t "${{ inputs.image }}" ${{ github.workspace }}
         fi
 
         docker push "${{ inputs.image }}"
