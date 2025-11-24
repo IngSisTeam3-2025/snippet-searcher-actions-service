@@ -24,13 +24,24 @@ runs:
     - name: Build and Push Image
       shell: bash
       run: |
+        CONTEXT="$GITHUB_WORKSPACE"
+        DOCKERFILE="$GITHUB_WORKSPACE/Dockerfile"
+
+        echo "Using context: $CONTEXT"
+        echo "Using Dockerfile: $DOCKERFILE"
+
         if [ -n "${{ inputs.gpr_user }}" ] && [ -n "${{ inputs.gpr_key }}" ]; then
           docker build \
             --build-arg GPR_USER="${{ inputs.gpr_user }}" \
             --build-arg GPR_KEY="${{ inputs.gpr_key }}" \
-            -t "${{ inputs.image }}" .
+            -f "$DOCKERFILE" \
+            -t "${{ inputs.image }}" \
+            "$CONTEXT"
         else
-          docker build -t "${{ inputs.image }}" .
+          docker build \
+            -f "$DOCKERFILE" \
+            -t "${{ inputs.image }}" \
+            "$CONTEXT"
         fi
 
         docker push "${{ inputs.image }}"
