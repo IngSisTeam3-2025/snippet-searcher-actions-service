@@ -31,14 +31,14 @@ runs:
         echo "Using Dockerfile: $DOCKERFILE"
 
         if [ -n "${{ inputs.gpr_user }}" ] && [ -n "${{ inputs.gpr_key }}" ]; then
-          docker build \
+          docker build --no-cache \
             --build-arg GPR_USER="${{ inputs.gpr_user }}" \
             --build-arg GPR_KEY="${{ inputs.gpr_key }}" \
             -f "$DOCKERFILE" \
             -t "${{ inputs.image }}" \
             "$CONTEXT"
         else
-          docker build \
+          docker build --no-cache \
             -f "$DOCKERFILE" \
             -t "${{ inputs.image }}" \
             "$CONTEXT"
