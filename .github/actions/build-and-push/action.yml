@@ -1,6 +1,5 @@
 name: Build and Push Docker Image
 description: Reusable action to build and push Docker image to GHCR
-
 inputs:
   username:
     required: true
@@ -12,41 +11,34 @@ inputs:
     required: false
   gpr_key:
     required: false
-
 runs:
   using: "composite"
   steps:
-
     - name: Log in to GHCR
       shell: bash
       run: |
         echo "${{ inputs.token }}" | docker login ghcr.io -u "${{ inputs.username }}" --password-stdin
-
+    
     - name: Build and Push Image
       shell: bash
       run: |
         WORKDIR="${GITHUB_WORKSPACE}"
-
         echo "Using context: $WORKDIR"
         echo "Using Dockerfile: $WORKDIR/Dockerfile"
-
         if [ -n "${{ inputs.gpr_user }}" ] && [ -n "${{ inputs.gpr_key }}" ]; then
-          export DOCKER_BUILDKIT=0
-          
-          docker build --no-cache \
-          --build-arg GPR_USER="${{ inputs.gpr_user }}" \
-          --build-arg GPR_KEY="${{ inputs.gpr_key }}" \
-          -f "$WORKDIR/Dockerfile" \
-          -t "${{ inputs.image }}" \
-          "$WORKDIR"
-
+          docker build \
+            --no-cache \
+            --build-arg GPR_USER="${{ inputs.gpr_user }}" \
+            --build-arg GPR_KEY="${{ inputs.gpr_key }}" \
+            -f "$WORKDIR/Dockerfile" \
+            -t "${{ inputs.image }}" \
+            "$WORKDIR"
         else
-          export DOCKER_BUILDKIT=0
-          
-          docker build --no-cache \
-          -f "$WORKDIR/Dockerfile" \
-          -t "${{ inputs.image }}" \
-          "$WORKDIR"
+          docker build \
+            --no-cache \
+            -f "$WORKDIR/Dockerfile" \
+            -t "${{ inputs.image }}" \
+            "$WORKDIR"
         fi
-
         docker push "${{ inputs.image }}"
+        
