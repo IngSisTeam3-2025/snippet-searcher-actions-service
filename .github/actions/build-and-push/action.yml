@@ -16,7 +16,8 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Log in to GitHub Container Registry
+
+    - name: Log in to GHCR
       shell: bash
       run: |
         echo "${{ inputs.token }}" | docker login ghcr.io -u "${{ inputs.username }}" --password-stdin
@@ -24,13 +25,23 @@ runs:
     - name: Build and Push Image
       shell: bash
       run: |
+        WORKDIR="${GITHUB_WORKSPACE}"
+
+        echo "Using context: $WORKDIR"
+        echo "Using Dockerfile: $WORKDIR/Dockerfile"
+
         if [ -n "${{ inputs.gpr_user }}" ] && [ -n "${{ inputs.gpr_key }}" ]; then
           docker build \
             --build-arg GPR_USER="${{ inputs.gpr_user }}" \
             --build-arg GPR_KEY="${{ inputs.gpr_key }}" \
-            -t "${{ inputs.image }}" .
+            -f "$WORKDIR/Dockerfile" \
+            -t "${{ inputs.image }}" \
+            "$WORKDIR"
         else
-          docker build -t "${{ inputs.image }}" .
+          docker build \
+            -f "$WORKDIR/Dockerfile" \
+            -t "${{ inputs.image }}" \
+            "$WORKDIR"
         fi
 
         docker push "${{ inputs.image }}"
