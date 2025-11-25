@@ -31,17 +31,22 @@ runs:
         echo "Using Dockerfile: $WORKDIR/Dockerfile"
 
         if [ -n "${{ inputs.gpr_user }}" ] && [ -n "${{ inputs.gpr_key }}" ]; then
-          docker build \
-            --build-arg GPR_USER="${{ inputs.gpr_user }}" \
-            --build-arg GPR_KEY="${{ inputs.gpr_key }}" \
-            -f "$WORKDIR/Dockerfile" \
-            -t "${{ inputs.image }}" \
-            "$WORKDIR"
+          export DOCKER_BUILDKIT=0
+          
+          docker build --no-cache \
+          --build-arg GPR_USER="${{ inputs.gpr_user }}" \
+          --build-arg GPR_KEY="${{ inputs.gpr_key }}" \
+          -f "$WORKDIR/Dockerfile" \
+          -t "${{ inputs.image }}" \
+          "$WORKDIR"
+
         else
-          docker build \
-            -f "$WORKDIR/Dockerfile" \
-            -t "${{ inputs.image }}" \
-            "$WORKDIR"
+          export DOCKER_BUILDKIT=0
+          
+          docker build --no-cache \
+          -f "$WORKDIR/Dockerfile" \
+          -t "${{ inputs.image }}" \
+          "$WORKDIR"
         fi
 
         docker push "${{ inputs.image }}"
