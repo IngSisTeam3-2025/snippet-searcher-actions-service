@@ -11,6 +11,9 @@ inputs:
     required: false
   gpr_key:
     required: false
+  build-args:
+    required: false
+
 runs:
   using: "composite"
   steps:
@@ -25,9 +28,18 @@ runs:
         WORKDIR="${GITHUB_WORKSPACE}"
         echo "Using context: $WORKDIR"
         echo "Using Dockerfile: $WORKDIR/Dockerfile"
+
+        BUILD_ARGS=""
+        if [ -n "${{ inputs.build-args }}" ]; then
+          while IFS= read -r line; do
+            BUILD_ARGS="$BUILD_ARGS --build-arg $line"
+          done <<< "${{ inputs.build-args }}"
+        fi
+        
         if [ -n "${{ inputs.gpr_user }}" ] && [ -n "${{ inputs.gpr_key }}" ]; then
           docker build \
             --no-cache \
+            $BUILD_ARGS \
             --build-arg GPR_USER="${{ inputs.gpr_user }}" \
             --build-arg GPR_KEY="${{ inputs.gpr_key }}" \
             -f "$WORKDIR/Dockerfile" \
@@ -36,9 +48,10 @@ runs:
         else
           docker build \
             --no-cache \
+            $BUILD_ARGS \
             -f "$WORKDIR/Dockerfile" \
             -t "${{ inputs.image }}" \
             "$WORKDIR"
         fi
+
         docker push "${{ inputs.image }}"
-        
